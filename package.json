@@ -1,14 +1,11 @@
 {
-  "name": "music-sync",
+  "name": "music-vercel-redis",
   "version": "1.0.0",
-  "description": "A simple real-time site where ready users hear music together",
-  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "vercel dev"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "ioredis": "^5.3.2"
   }
 }
