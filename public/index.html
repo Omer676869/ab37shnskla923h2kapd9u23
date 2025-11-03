@@ -19,12 +19,10 @@
     const btn = document.getElementById('playBtn');
     const music = document.getElementById('music');
 
-    // When user clicks → tell server to play music for everyone
     btn.addEventListener('click', () => {
       socket.emit('playMusic');
     });
 
-    // When server says “play”, everyone plays it
     socket.on('playMusic', () => {
       music.currentTime = 0;
       music.play();
