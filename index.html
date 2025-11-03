@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ready Music Vercel</title>
+  <title>Ready Music with Redis</title>
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 50px; }
-    button { padding: 10px 20px; margin: 5px; font-size: 18px; cursor: pointer; }
+    body { text-align: center; margin-top: 50px; font-family: Arial; }
+    button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🎵 Ready Music Vercel</h1>
+  <h1>🎵 Ready Music (Redis Version)</h1>
   <button id="readyBtn">I'm Ready</button>
-  <button id="playBtn">Play Music (for Ready Users)</button>
+  <button id="playBtn">Play Music for Ready Users</button>
   <audio id="music" src="/music.mp3"></audio>
 
   <script>
@@ -48,7 +48,7 @@
       }
     }
 
-    setInterval(pollPlay, 1000); // poll every second
+    setInterval(pollPlay, 1000);
   </script>
 </body>
 </html>
