@@ -1,41 +1,40 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
 const path = require("path");
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const PORT = process.env.PORT || 3000;
 
-// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
 
-// Optional: serve index.html explicitly (for safety in Vercel)
+let clients = []; // connected clients via SSE
+
+// ---- SSE connection ----
+app.get("/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  clients.push(res);
+  console.log("Client connected. Total:", clients.length);
+
+  req.on("close", () => {
+    clients = clients.filter(c => c !== res);
+    console.log("Client disconnected. Total:", clients.length);
+  });
+});
+
+// ---- Trigger endpoint ----
+app.post("/play", (req, res) => {
+  console.log("🎵 Broadcasting play event to all clients...");
+  clients.forEach(client => client.write("event: play\ndata: {}\n\n"));
+  res.json({ ok: true });
+});
+
+// ---- Serve frontend ----
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Keep track of connected clients
-let activeClients = [];
-
-io.on("connection", (socket) => {
-  console.log("A user connected");
-  activeClients.push(socket);
-
-  socket.on("startMusic", () => {
-    console.log("Broadcasting playMusic to all clients");
-    activeClients.forEach((client) => {
-      client.emit("playMusic");
-    });
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-    activeClients = activeClients.filter((client) => client !== socket);
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
