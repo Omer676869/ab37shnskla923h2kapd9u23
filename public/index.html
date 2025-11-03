@@ -1,58 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play Music</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        audio {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Broadcast</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 60px;
+      background: #121212;
+      color: white;
+    }
+    button {
+      background: #1db954;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1aa34a;
+    }
+    audio {
+      display: none;
+    }
+  </style>
 </head>
 <body>
+  <h1>🎵 Global Music Trigger</h1>
+  <p>Click the button below — everyone with this page open will hear the music!</p>
+  <button id="playButton">Play for Everyone</button>
+  <audio id="player" src="music.mp3"></audio>
 
-<h1>Click the button to play music for all active users!</h1>
-<button id="playButton">Start Music</button>
+  <script>
+    const player = document.getElementById("player");
+    const button = document.getElementById("playButton");
 
-<audio id="audioPlayer" controls>
-    <source src="music.mp3" type="audio/mp3">
-    Your browser does not support the audio element.
-</audio>
-
-<script>
-    const socket = io();
-    const playButton = document.getElementById('playButton');
-    const audioPlayer = document.getElementById('audioPlayer');
-
-    // When the button is clicked, send the "startMusic" event to the server
-    playButton.addEventListener('click', () => {
-        socket.emit('startMusic');
+    // connect to SSE stream
+    const evt = new EventSource("/events");
+    evt.addEventListener("play", () => {
+      console.log("Play event received 🎶");
+      player.play();
     });
 
-    // Listen for the "playMusic" event from the server and start the audio
-    socket.on('playMusic', () => {
-        audioPlayer.play();
-    });
-</script>
-
+    // send play request
+    button.onclick = async () => {
+      await fetch("/play", { method: "POST" });
+    };
+  </script>
 </body>
 </html>
