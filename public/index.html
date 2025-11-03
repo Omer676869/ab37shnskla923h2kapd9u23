@@ -1,55 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Music Broadcast</title>
+  <meta charset="UTF-8">
+  <title>Everyone Hears the Music</title>
+  <script src="/socket.io/socket.io.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 60px;
-      background: #121212;
-      color: white;
-    }
-    button {
-      background: #1db954;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 18px;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #1aa34a;
-    }
-    audio {
-      display: none;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; }
+    button { padding: 12px 24px; font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🎵 Global Music Trigger</h1>
-  <p>Click the button below — everyone with this page open will hear the music!</p>
-  <button id="playButton">Play for Everyone</button>
-  <audio id="player" src="music.mp3"></audio>
+  <h1>🎶 Global Music Button</h1>
+  <button id="playBtn">Play Music for Everyone 🎵</button>
+  <audio id="music" src="music.mp3"></audio>
 
   <script>
-    const player = document.getElementById("player");
-    const button = document.getElementById("playButton");
+    const socket = io();
+    const btn = document.getElementById('playBtn');
+    const music = document.getElementById('music');
 
-    // connect to SSE stream
-    const evt = new EventSource("/events");
-    evt.addEventListener("play", () => {
-      console.log("Play event received 🎶");
-      player.play();
+    // When user clicks → tell server to play music for everyone
+    btn.addEventListener('click', () => {
+      socket.emit('playMusic');
     });
 
-    // send play request
-    button.onclick = async () => {
-      await fetch("/play", { method: "POST" });
-    };
+    // When server says “play”, everyone plays it
+    socket.on('playMusic', () => {
+      music.currentTime = 0;
+      music.play();
+    });
   </script>
 </body>
 </html>
