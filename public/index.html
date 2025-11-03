@@ -1,69 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>🎶 Ready Sync Music</title>
-  <script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <title>Ready Music Vercel</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    #status {
-      font-size: 20px;
-      margin-top: 20px;
-    }
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    button { padding: 10px 20px; margin: 5px; font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🎵 Ready Sync Music</h1>
-
+  <h1>🎵 Ready Music Vercel</h1>
   <button id="readyBtn">I'm Ready</button>
-  <button id="playBtn">Play Music for Ready Users 🎶</button>
-
-  <p id="status">Ready users: 0</p>
-
-  <audio id="music" src="music.mp3"></audio>
+  <button id="playBtn">Play Music (for Ready Users)</button>
+  <audio id="music" src="/music.mp3"></audio>
 
   <script>
-    const socket = io();
     const readyBtn = document.getElementById("readyBtn");
     const playBtn = document.getElementById("playBtn");
-    const status = document.getElementById("status");
     const music = document.getElementById("music");
 
+    const userId = crypto.randomUUID();
     let isReady = false;
 
-    readyBtn.addEventListener("click", () => {
+    readyBtn.addEventListener("click", async () => {
       if (!isReady) {
+        await fetch("/api/ready", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userId })
+        });
         isReady = true;
-        socket.emit("ready");
         readyBtn.disabled = true;
         readyBtn.innerText = "✅ Ready!";
       }
     });
 
-    playBtn.addEventListener("click", () => {
-      socket.emit("play");
+    playBtn.addEventListener("click", async () => {
+      await fetch("/api/play", { method: "POST" });
     });
 
-    socket.on("playMusic", () => {
-      if (isReady) {
+    async function pollPlay() {
+      const res = await fetch("/api/play");
+      const data = await res.json();
+      if (data.play && isReady) {
         music.currentTime = 0;
         music.play();
       }
-    });
+    }
 
-    socket.on("readyCount", (count) => {
-      status.innerText = `Ready users: ${count}`;
-    });
+    setInterval(pollPlay, 1000); // poll every second
   </script>
 </body>
 </html>
