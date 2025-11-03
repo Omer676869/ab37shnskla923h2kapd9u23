@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Music</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Click the button to play music for all active users!</h1>
+<button id="playButton">Start Music</button>
+
+<audio id="audioPlayer" controls>
+    <source src="music.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+</audio>
+
+<script>
+    const socket = io();
+    const playButton = document.getElementById('playButton');
+    const audioPlayer = document.getElementById('audioPlayer');
+
+    // When the button is clicked, send the "startMusic" event to the server
+    playButton.addEventListener('click', () => {
+        socket.emit('startMusic');
+    });
+
+    // Listen for the "playMusic" event from the server and start the audio
+    socket.on('playMusic', () => {
+        audioPlayer.play();
+    });
+</script>
+
+</body>
+</html>
